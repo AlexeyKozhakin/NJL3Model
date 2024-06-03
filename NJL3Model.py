@@ -5,23 +5,7 @@ def calculate_fun(fun, *x):
     return fun(*x)
     
 #======================================== Omega_mu_L =======================================================
-from scipy.integrate import quad
 import numpy as np
-from functools import partial
-
-# Define the summand function for vectorized operations
-def F_p(p1, n, M, b, L, phi, mu):
-    E1 = E_1(p1, M)
-    term1 = np.sqrt((E1 + b)**2 + (2 * np.pi / L * (n + phi))**2)
-    term2 = np.sqrt((E1 - b)**2 + (2 * np.pi / L * (n + phi))**2)
-
-    theta1 = np.maximum(mu - term1, 0)
-    theta2 = np.maximum(mu - term2, 0)
-
-    return (theta1 + theta2) / (2 * np.pi)
-
-def n_max(L,mu,phi):
-    return L*mu/(2*np.pi)-phi
 
 def integration_limits(M,b,mu,L,n,phi):
     SQ = (mu**2-4*np.pi**2/L**2*(n+phi)**2)**(0.5)
@@ -29,41 +13,6 @@ def integration_limits(M,b,mu,L,n,phi):
     p_down = ((b-SQ)**2 - M**2)**(0.5)
     return p_down, p_up
 
-def int_F(M,b,mu,L,n,phi):
-    # Создаем частичное применение функции с зафиксированными значениями a, b и c
-    p_down, p_up = integration_limits(M,b,mu,L,n,phi)
-    if np.iscomplexobj(p_up) and np.iscomplexobj(p_down):
-        result = 0
-    elif np.iscomplexobj(p_up):
-        partial_integrand = partial(F_p,
-                                    n=n, M=M, b=b, L=L, phi=phi, mu=mu)
-        # Вызываем функцию quad для выполнения интегрирования
-        result, error = quad(partial_integrand, 0, p_down)      
-    elif np.iscomplexobj(p_down):   
-        partial_integrand = partial(F_p,
-                                    n=n, M=M, b=b, L=L, phi=phi, mu=mu)
-        # Вызываем функцию quad для выполнения интегрирования
-        result, error = quad(partial_integrand, 0, p_up)
-    else:
-        if p_down>p_up:
-          p_up=p_down   
-        partial_integrand = partial(F_p,
-                                    n=n, M=M, b=b, L=L, phi=phi, mu=mu)
-        # Вызываем функцию quad для выполнения интегрирования
-        result, error = quad(partial_integrand, 0, p_up)        
-    return result
-    
-def int_F_n_sum(M,b,mu,L,phi):
-    N_max = np.floor(abs(n_max(L,mu,phi)))
-    summation=0
-    n=-1
-    while n<N_max and int_F(M,b,mu,L,n+1,phi)!=0:
-      n+=1
-      if n==0:
-        summation += int_F(M,b,mu,L,n,phi)
-      else:
-        summation += 2*int_F(M,b,mu,L,n,phi)
-    return -summation/L*2
 #========================================Omega_mu_L_opt=====================================================
 def fun_n_p_max(M, b, L, phi, mu):
        n=-1
