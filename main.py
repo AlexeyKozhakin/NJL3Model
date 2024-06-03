@@ -60,7 +60,7 @@ else:
     # Кнопка для обновления графиков
     if st.button('Нажмите для обновления графиков'):
         # Вычисление значений функции для каждого значения M
-        x_values = [(M, b, L, phi, mu) for b in b_values]
+        x_values = [(M, float(b), L, phi, mu) for b in b_values]
         Omega_mu_L_values = [NJL3Model.calculate_fun(NJL3Model.Omega_mu_L_phys, *x)
                             for x in x_values]
         plot(b_values,Omega_mu_L_values,name_x='x',name_y='y',title=r'${\Omega_{{\mu} L,phys}(M,b)}$')
