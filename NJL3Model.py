@@ -3,6 +3,102 @@ import time
 
 def calculate_fun(fun, *x):
     return fun(*x)
+    
+#======================================== Omega_mu_L =======================================================
+from scipy.integrate import quad
+import numpy as np
+from functools import partial
+
+# Define the summand function for vectorized operations
+def F_p(p1, n, M, b, L, phi, mu):
+    E1 = E_1(p1, M)
+    term1 = np.sqrt((E1 + b)**2 + (2 * np.pi / L * (n + phi))**2)
+    term2 = np.sqrt((E1 - b)**2 + (2 * np.pi / L * (n + phi))**2)
+
+    theta1 = np.maximum(mu - term1, 0)
+    theta2 = np.maximum(mu - term2, 0)
+
+    return (theta1 + theta2) / (2 * np.pi)
+
+def n_max(L,mu,phi):
+    return L*mu/(2*np.pi)-phi
+
+def integration_limits(M,b,mu,L,n,phi):
+    SQ = (mu**2-4*np.pi**2/L**2*(n+phi)**2)**(0.5)
+    p_up = ((b+SQ)**2 - M**2)**(0.5)
+    p_down = ((b-SQ)**2 - M**2)**(0.5)
+    return p_down, p_up
+
+def int_F(M,b,mu,L,n,phi):
+    # Создаем частичное применение функции с зафиксированными значениями a, b и c
+    p_down, p_up = integration_limits(M,b,mu,L,n,phi)
+    if np.iscomplexobj(p_up) and np.iscomplexobj(p_down):
+        result = 0
+    elif np.iscomplexobj(p_up):
+        partial_integrand = partial(F_p,
+                                    n=n, M=M, b=b, L=L, phi=phi, mu=mu)
+        # Вызываем функцию quad для выполнения интегрирования
+        result, error = quad(partial_integrand, 0, p_down)      
+    elif np.iscomplexobj(p_down):   
+        partial_integrand = partial(F_p,
+                                    n=n, M=M, b=b, L=L, phi=phi, mu=mu)
+        # Вызываем функцию quad для выполнения интегрирования
+        result, error = quad(partial_integrand, 0, p_up)
+    else:
+        if p_down>p_up:
+          p_up=p_down   
+        partial_integrand = partial(F_p,
+                                    n=n, M=M, b=b, L=L, phi=phi, mu=mu)
+        # Вызываем функцию quad для выполнения интегрирования
+        result, error = quad(partial_integrand, 0, p_up)        
+    return result
+    
+def int_F_n_sum(M,b,mu,L,phi):
+    N_max = np.floor(abs(n_max(L,mu,phi)))
+    summation=0
+    n=-1
+    while n<N_max and int_F(M,b,mu,L,n+1,phi)!=0:
+      n+=1
+      if n==0:
+        summation += int_F(M,b,mu,L,n,phi)
+      else:
+        summation += 2*int_F(M,b,mu,L,n,phi)
+    return -summation/L*2
+#========================================Omega_mu_L_opt=====================================================
+def fun_n_p_max(M, b, L, phi, mu):
+       n=-1
+       p_max=0
+       while True:
+           n += 1
+           p_down, p_up = integration_limits(M,b,mu,L,n,phi)
+           if np.iscomplexobj(p_up) and np.iscomplexobj(p_down):
+              break
+           elif np.iscomplexobj(p_up):
+              if p_down>p_max:
+                p_max = p_down
+           elif np.iscomplexobj(p_down):
+              if p_up>p_max:
+                 p_max = p_up
+           elif p_up>p_max and p_up>p_down:
+               p_max = p_up
+           elif p_down>p_max:
+               p_max = p_down
+       return n-1, p_max
+# Function to compute Omega_mu_L
+def Omega_mu_L_opt(M, b, L, phi, mu):
+    n_points, p_max = fun_n_p_max(M, b, L, phi, mu)
+    p1_points = 200
+    p1 = np.linspace(0, p_max, p1_points)
+    n_range = np.arange(1, n_points + 1)
+
+    integrand_values = integrand_mu(p1, M, b, L, phi, mu, n_range)
+    result = 4*np.trapz(integrand_values, p1)
+
+    n_range = np.arange(0, 1)
+    integrand_values = integrand_mu(p1, M, b, L, phi, mu, n_range)
+    result0 = 2*np.trapz(integrand_values, p1)
+    result +=result0
+    return -result / L
 #========================================Omega_mu_L_phys Start =============================================
 # Define E_1
 def E_1(p1, M):
@@ -24,11 +120,12 @@ def integrand_mu(p1, M, b, L, phi, mu, n_range):
     summation = np.sum(summand_vectorized(n_range[:, np.newaxis], p1, M, b, L, phi, mu), axis=0)
     return summation
 
-# Define the limits for p1 integration
-p1_min, p1_max = -10, 10  # Example integration limits for p1
+
 
 # Function to compute Omega_mu_L
-def Omega_mu_L(M, b, L, phi, mu, p1_points=200, n_points=200):
+def Omega_mu_L(M, b, L, phi, mu, p1_points=100, n_points=100):
+    # Define the limits for p1 integration
+    p1_min, p1_max = -250, 250  # Example integration limits for p1
     p1 = np.linspace(p1_min, p1_max, p1_points)
     n_range = np.arange(-n_points, n_points + 1)
     
@@ -38,9 +135,9 @@ def Omega_mu_L(M, b, L, phi, mu, p1_points=200, n_points=200):
 
 # Physical version function
 def Omega_mu_L_phys(M, b, L, phi, mu, p1_points=100, n_points=100):
-    return (Omega_mu_L(M, b, L, phi, mu, p1_points, n_points)
-            - Omega_mu_L(0, b, L, phi, mu, p1_points, n_points)
-            + Omega_mu_L(0, 0, L, phi, mu, p1_points, n_points))
+    return (Omega_mu_L_opt(M, b, L, phi, mu)
+            - Omega_mu_L_opt(0, b, L, phi, mu)
+            + Omega_mu_L_opt(0, 0, L, phi, mu))
 #========================================Omega_L_phys Start =============================================
 # Define E_1, B_pm functions
 def E_1(p1, M):
