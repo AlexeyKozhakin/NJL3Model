@@ -1,6 +1,7 @@
 import streamlit as st
 import numpy as np
 import NJL3Model
+import NJL3Model_v2
 import pandas as pd
 
 def plot(x_val,y_val,name_x='x',name_y='y',title='fun'):
@@ -29,19 +30,19 @@ if ratio == "b":
     if st.button('Нажмите для обновления графиков'):
         # Вычисление значений функции для каждого значения M
         x_values = [(M, b, L, phi, mu) for M in M_values]
-        Omega_mu_L_values = [NJL3Model.calculate_fun(NJL3Model.Omega_mu_L_phys, *x)
+        Omega_mu_L_values = [NJL3Model.calculate_fun(NJL3Model_v2.Omega_mu_L_phys, *x)
                             for x in x_values]
         plot(M_values,Omega_mu_L_values,name_x='M',name_y='y',title=r'${\Omega_{{\mu} L,phys}(M,b)}$')
 #======================================================================
         # Вычисление значений функции для каждого значения M
         x_values = [(M, b, L, phi) for M in M_values]
-        Omega_L_values = [NJL3Model.calculate_fun(NJL3Model.Omega_L_phys, *x)
+        Omega_L_values = [NJL3Model.calculate_fun(NJL3Model.Omega_L_phys_opt, *x)
                             for x in x_values]
         plot(M_values,Omega_L_values,name_x='M',name_y='y',title=r'${\Omega_{L,phys}(M,b)}$')
 #======================================================================
         # Вычисление значений функции для каждого значения M
         x_values = [(M, b) for M in M_values]
-        dU_values = [NJL3Model.calculate_fun(NJL3Model.delta_U_phys, *x)
+        dU_values = [NJL3Model.calculate_fun(NJL3Model.delta_U_phys_opt, *x)
                             for x in x_values]
         plot(M_values,dU_values,name_x='M',name_y='y',title=r'$\Delta U_{phys}{(M,b)}$')
 #======================================================================
@@ -61,19 +62,19 @@ else:
     if st.button('Нажмите для обновления графиков'):
         # Вычисление значений функции для каждого значения M
         x_values = [(M, float(b), L, phi, mu) for b in b_values]
-        Omega_mu_L_values = [NJL3Model.calculate_fun(NJL3Model.Omega_mu_L_phys, *x)
+        Omega_mu_L_values = [NJL3Model.calculate_fun(NJL3Model_v2.Omega_mu_L_phys, *x)
                             for x in x_values]
         plot(b_values,Omega_mu_L_values,name_x='x',name_y='y',title=r'${\Omega_{{\mu} L,phys}(M,b)}$')
 #======================================================================
         # Вычисление значений функции для каждого значения M
         x_values = [(M, b, L, phi) for b in b_values]
-        Omega_L_values = [NJL3Model.calculate_fun(NJL3Model.Omega_L_phys, *x)
+        Omega_L_values = [NJL3Model.calculate_fun(NJL3Model.Omega_L_phys_opt, *x)
                             for x in x_values]
         plot(b_values,Omega_L_values,name_x='x',name_y='y',title=r'${\Omega_{L,phys}(M,b)}$')
 #======================================================================
         # Вычисление значений функции для каждого значения M
         x_values = [(M, b) for b in b_values]
-        dU_values = [NJL3Model.calculate_fun(NJL3Model.delta_U_phys, *x)
+        dU_values = [NJL3Model.calculate_fun(NJL3Model.delta_U_phys_opt, *x)
                             for x in x_values]
         plot(b_values,dU_values,name_x='x',name_y='y',title=r'$\Delta U_{phys}{(M,b)}$')
 #======================================================================

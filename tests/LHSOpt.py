@@ -16,7 +16,6 @@ def generate_random_permutation(n, k):
 
     # Перемешиваем список случайным образом
     random.shuffle(permutation)
-    print(permutation)
     return permutation
     
     
