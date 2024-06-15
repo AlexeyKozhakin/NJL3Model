@@ -1,6 +1,5 @@
 import numpy as np
 from math import floor, ceil
-from scipy.integrate import quad
 
 def Fpn_plus(n, p1, M, b, L, phi, mu):
     E1 = np.sqrt(M**2 + p1**2)
