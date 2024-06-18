@@ -1,5 +1,6 @@
 import numpy as np
 import time
+import NJL3Model_v2
 
 def calculate_fun(fun, *x):
     return fun(*x)
@@ -45,7 +46,7 @@ def Omega_mu_L_phys_opt(M, b, L, phi, mu, p1_points=100, n_points=100):
             - Omega_mu_L_opt(0, b, L, phi, mu)
             + Omega_mu_L_opt(0, 0, L, phi, mu))
 def Omega_phys_ren_opt(M, b, L, phi, mu, g):
-    return M**2 / (2 * g) + delta_U_phys(M, b) + Omega_L_phys_opt(M, b, L, phi) + Omega_mu_L_phys_opt(M, b, L, phi, mu)    
+    return M**2 / (2 * g) + delta_U_phys(M, b) + Omega_L_phys_opt(M, b, L, phi) + NJL3Model_v2.Omega_mu_L_phys(M, b, L, phi, mu)    
 #======================================== Omega_mu_L =======================================================
 
 def integration_limits(M,b,mu,L,n,phi):
@@ -246,3 +247,4 @@ def delta_U_phys(M, b, num_points=100):
 def Omega_phys_ren(M, b, L, phi, mu, g):
     b=float(b)
     return M**2 / (2 * g) + delta_U_phys(M, b) + Omega_L_phys(M, b, L, phi) + Omega_mu_L_phys(M, b, L, phi, mu)
+
