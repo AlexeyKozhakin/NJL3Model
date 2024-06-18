@@ -48,7 +48,7 @@ if ratio == "b":
 #======================================================================
         # Вычисление значений функции для каждого значения M
         x_values = [(M, b, L, phi, mu, g) for M in M_values]
-        Omega_phys_ren_values = [NJL3Model.calculate_fun(NJL3Model.Omega_mu_L_phys_opt, *x)
+        Omega_phys_ren_values = [NJL3Model.calculate_fun(NJL3Model.Omega_phys_ren_opt, *x)
                             for x in x_values]
         plot(M_values,Omega_phys_ren_values,name_x='M',name_y='y',title=r'$\Omega_{phys}^{ren}$')
 else:
@@ -81,6 +81,6 @@ else:
 #======================================================================
         # Вычисление значений функции для каждого значения M
         x_values = [(M, b, L, phi, mu, g) for b in b_values]
-        Omega_phys_ren_values = [NJL3Model.calculate_fun(NJL3Model.Omega_mu_L_phys_opt, *x)
+        Omega_phys_ren_values = [NJL3Model.calculate_fun(NJL3Model.Omega_phys_ren_opt, *x)
                             for x in x_values]
         plot(b_values,Omega_phys_ren_values,name_x='b',name_y='y',title=r'$\Omega_{phys}^{ren}$')
