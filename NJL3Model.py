@@ -32,7 +32,7 @@ def Omega_L_opt(M, b, L, phi):
     # Perform the double integration using trapezoidal rule
     result_p1 = np.trapz(integrand_values, p1, axis=1)
     result = np.trapz(result_p1, p3)
-    return 4*result
+    return 4*result/L
 
 # Define Omega_L_phys function
 def Omega_L_phys_opt(M, b, L, phi):
